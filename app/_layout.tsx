@@ -5,20 +5,36 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+import { Providers } from '@/components/providers/Providers';
+import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
+import '@/global.css';
+import { useSession } from '@/hooks/useSession';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
+  const { sessionAvailable }= useSession()
+
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    
+    <Providers >
+<GluestackUIProvider mode="dark">
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+
+        <Stack.Protected guard={!sessionAvailable}  >
+          <Stack.Screen name='login' />
+        </Stack.Protected>
+        <Stack.Protected guard={sessionAvailable}  >
+          <Stack.Screen name='index' />
+        </Stack.Protected>
+
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
+    </GluestackUIProvider>
+    </Providers>
+    
+  
   );
 }
